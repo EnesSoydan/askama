@@ -146,6 +146,40 @@ primitive_type! {
     u8, u16, u32, u64, u128, usize,
 }
 
+/// Converts a primitive value into a number of bytes for `|filesizeformat`.
+///
+/// Negative values are clamped to `0` (like float to int casts already do),
+/// instead of wrapping around to a huge unsigned number.
+pub trait FilesizeBytes {
+    fn filesize_bytes(self) -> u128;
+}
+
+macro_rules! filesize_bytes {
+    (cast: $($ty:ty),*; clamp: $($sty:ty),*) => {
+        $(
+            impl FilesizeBytes for $ty {
+                #[inline]
+                fn filesize_bytes(self) -> u128 {
+                    self as u128
+                }
+            }
+        )*
+        $(
+            impl FilesizeBytes for $sty {
+                #[inline]
+                fn filesize_bytes(self) -> u128 {
+                    self.max(0) as u128
+                }
+            }
+        )*
+    };
+}
+
+filesize_bytes! {
+    cast: bool, f32, f64, u8, u16, u32, u64, u128, usize;
+    clamp: i8, i16, i32, i64, i128, isize
+}
+
 crate::impl_for_ref! {
     impl PrimitiveType for T {
         type Value = T::Value;

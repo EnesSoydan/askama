@@ -581,6 +581,22 @@ fn test_filesizeformat_with_precision() {
 }
 
 #[test]
+fn test_filesizeformat_negative() {
+    #[derive(Template)]
+    #[template(
+        source = r#"{{ a | filesizeformat }}|{{ b | filesizeformat }}"#,
+        ext = "html"
+    )]
+    struct S {
+        a: i64,
+        b: f64,
+    }
+
+    assert_eq!(S { a: -1, b: -1.0 }.render().unwrap(), "0 B|0 B");
+    assert_eq!(S { a: 1500, b: 1500.0 }.render().unwrap(), "1.5 kB|1.5 kB");
+}
+
+#[test]
 fn test_whitespace_around_filter_operator() {
     #[derive(Template)]
     #[template(

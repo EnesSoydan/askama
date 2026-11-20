@@ -319,7 +319,9 @@ impl<'a> Generator<'a, '_> {
         quote_into!(buf, ctx.span_for_node(node), {
             askama::filters::HtmlSafeOutput(
                 askama::filters::filesizeformat(
-                    askama::helpers::get_primitive_value(&(#source)) as askama::helpers::core::primitive::u128,
+                    askama::helpers::FilesizeBytes::filesize_bytes(
+                        askama::helpers::get_primitive_value(&(#source))
+                    ),
                     askama::helpers::get_primitive_value(&(#precision)) as askama::helpers::core::primitive::u8
                 )?
             )
